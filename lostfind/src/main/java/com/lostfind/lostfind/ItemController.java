@@ -21,7 +21,11 @@ public class ItemController {
     private FoundItemService foundItemService;
 
     @GetMapping("/report-lost")
-    public String reportLostForm() {
+    public String reportLostForm(@AuthenticationPrincipal User user, Model model) {
+        // Add the authenticated user's username to the model
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+        }
         return "report-lost"; // Thymeleaf template for reporting lost items
     }
 
@@ -29,14 +33,17 @@ public class ItemController {
     public String reportLostItem(@RequestParam String itemName, @RequestParam String description,
                                  @RequestParam String location, @RequestParam String dateLost,
                                  @AuthenticationPrincipal User user) {
-        // Parse the date string into a LocalDate object
-        LocalDate lostDate = LocalDate.parse(dateLost); // Ensure the date format is correct (e.g., "yyyy-MM-dd")
+        LocalDate lostDate = LocalDate.parse(dateLost);
         lostItemService.reportLostItem(itemName, description, location, lostDate, user);
         return "redirect:/"; // Redirect to homepage after reporting
     }
 
     @GetMapping("/report-found")
-    public String reportFoundForm() {
+    public String reportFoundForm(@AuthenticationPrincipal User user, Model model) {
+        // Add the authenticated user's username to the model
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+        }
         return "report-found"; // Thymeleaf template for reporting found items
     }
 
@@ -44,8 +51,7 @@ public class ItemController {
     public String reportFoundItem(@RequestParam String itemName, @RequestParam String description,
                                   @RequestParam String location, @RequestParam String dateFound,
                                   @AuthenticationPrincipal User user) {
-        // Parse the date string into a LocalDate object
-        LocalDate foundDate = LocalDate.parse(dateFound); // Ensure the date format is correct (e.g., "yyyy-MM-dd")
+        LocalDate foundDate = LocalDate.parse(dateFound);
         foundItemService.reportFoundItem(itemName, description, location, foundDate, user);
         return "redirect:/"; // Redirect to homepage after reporting
     }
