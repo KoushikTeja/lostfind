@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title>Call-to-Action Section</title>
 </head>
 <body>
+<!-- Call-to-Action Section -->
 <div class="cta">
     <div class="container">
         <h2>Join Our Community Today</h2>
-        <a href="/register" class="btn btn-light btn-lg">Sign Up Now</a>
-        <a href="/login" class="btn btn-outline-light btn-lg">Log In</a>
+        <!-- Show buttons ONLY if user is NOT logged in -->
+        <div sec:authorize="!isAuthenticated()">
+            <a href="/register" class="btn btn-light btn-lg">Sign Up Now</a>
+            <a href="/login" class="btn btn-outline-light btn-lg">Log In</a>
+        </div>
+        <!-- Show alternative content if user IS logged in -->
+        <div sec:authorize="isAuthenticated()">
+            <a href="/report-lost" class="btn btn-light btn-lg">Report a Lost Item</a>
+            <a href="/report-found" class="btn btn-outline-light btn-lg">Report a Found Item</a>
+        </div>
     </div>
+</div>
 </div>
 </body>
 </html>
