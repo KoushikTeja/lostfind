@@ -8,12 +8,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.Optional;
 
 @Controller
 public class HomeController {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private LostItemService lostItemService;
+    @Autowired private FoundItemService foundItemService;
 
     @GetMapping("/")
     public String home(Model model) {
@@ -51,11 +54,26 @@ public class HomeController {
 
     @GetMapping("/profile")
     public String profile(Model model) {
-        // Get the authenticated user's details
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
-            model.addAttribute("username", authentication.getName()); // Add username to the model
+            String username = authentication.getName();
+
+            // Use Optional properly
+            Optional<User> userOptional = userRepository.findByUsername(username);
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+
+                int lostCount = lostItemService.getLostItemsByUser(user).size();
+                int foundCount = foundItemService.getFoundItemsByUser(user).size();
+
+                model.addAttribute("username", username);
+                model.addAttribute("lostItemsCount", lostCount);
+                model.addAttribute("foundItemsCount", foundCount);
+            } else {
+                model.addAttribute("error", "User not found");
+            }
         }
-        return "profile"; // Refers to profile.html
+        return "profile";
     }
 }
